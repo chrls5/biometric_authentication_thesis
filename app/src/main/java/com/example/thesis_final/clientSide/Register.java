@@ -7,8 +7,8 @@ import static com.example.thesis_final.clientSide.KeystoreUtils.isSensorAvailabl
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.thesis_final.serverSide.Response;
-import com.example.thesis_final.serverSide.UsersService;
+import com.example.thesis_final.Response;
+import com.example.thesis_final.serverSide.UsersServiceAPI;
 
 public class Register {
 
@@ -25,7 +25,7 @@ public class Register {
             return;
         }
 
-        Response response = UsersService.addNewUser(username, pubKey);
+        Response response = UsersServiceAPI.addNewUser(username, pubKey);
         Toast.makeText(view.getContext(), response.getMessage(), Toast.LENGTH_SHORT).show();
     }
 
@@ -42,7 +42,7 @@ public class Register {
             return;
         }
 
-        Response response = UsersService.addBiometricsToUser(username, pubKey);
+        Response response = UsersServiceAPI.addBiometricsToUser(username, pubKey);
         Toast.makeText(view.getContext(), response.getMessage(), Toast.LENGTH_SHORT).show();
     }
 }

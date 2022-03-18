@@ -1,4 +1,4 @@
-package com.example.thesis_final.serverSide;
+package com.example.thesis_final;
 
 public class Response {
     private String message;

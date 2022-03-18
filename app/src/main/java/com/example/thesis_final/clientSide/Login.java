@@ -10,11 +10,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricPrompt;
 
-import com.example.thesis_final.CurrentState;
-import com.example.thesis_final.serverSide.Response;
-import com.example.thesis_final.serverSide.UsersService;
-
-import org.bouncycastle.util.encoders.Base64;
+import com.example.thesis_final.Response;
+import com.example.thesis_final.serverSide.UsersServiceAPI;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Signature;
@@ -51,7 +48,7 @@ public class Login {
                     final byte[] signed = cryptoSignature.sign();
 
                     //send signed data to server for verification
-                    Response response = UsersService.verifyUserUsingBiometrics(username, signed);
+                    Response response = UsersServiceAPI.verifyUserUsingBiometrics(username, signed);
 
                     Toast.makeText(view.getContext(), response.getMessage(), Toast.LENGTH_SHORT).show();
 
@@ -71,11 +68,11 @@ public class Login {
             }
         };
 
-        KeystoreUtils.signMessage("something", view, authCallback);
+        KeystoreUtils.signMessage(message, view, authCallback);
     }
 
     public static void loginUsingPassword(String username, String password, View view){
-        Response response = UsersService.verifyUserUsingPassword(username, password);
+        Response response = UsersServiceAPI.verifyUserUsingPassword(username, password);
         Toast.makeText(view.getContext(), response.getMessage(), Toast.LENGTH_SHORT).show();
         if (response.isSuccess())
             view.getContext().startActivity(new Intent(view.getContext(), LoggedInView.class));

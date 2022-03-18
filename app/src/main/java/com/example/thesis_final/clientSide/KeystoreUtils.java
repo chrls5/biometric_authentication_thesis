@@ -3,6 +3,9 @@ package com.example.thesis_final.clientSide;
 import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
 import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
 
+import static com.example.thesis_final.KeyPairGeneration.generateCertificate;
+import static com.example.thesis_final.KeyPairGeneration.generateKeyPairFromPwd;
+
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
@@ -14,7 +17,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.thesis_final.CurrentState;
-import com.example.thesis_final.serverSide.Response;
+import com.example.thesis_final.Response;
 
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -67,48 +70,6 @@ public class KeystoreUtils {
             ks.load(null);
         }
         return ks;
-    }
-
-    ////////  REGISTER USAGE   //////////// these two methods can be moved to a common class
-    public static KeyPair generateKeyPairFromPwd(String password) throws NoSuchAlgorithmException, NoSuchProviderException {
-        Security.removeProvider("BC");
-        Security.addProvider(new BouncyCastleProvider());
-
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] seed = digest.digest(
-                password.getBytes(StandardCharsets.UTF_8));
-
-        FixedSecureRandom random = new FixedSecureRandom(seed);
-
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC", "BC");
-        keyGen.initialize(256, random);
-        return keyGen.generateKeyPair();
-    }
-
-    private static X509Certificate generateCertificate(KeyPair keyPair)
-            throws OperatorCreationException, CertificateException, InvalidKeyException, NoSuchAlgorithmException,
-            NoSuchProviderException, SignatureException {
-        String issuerString = "C=DE, O=datenkollektiv, OU=Planets Debug Certificate";
-        // subjects name - the same as we are self signed.
-        String subjectString = "C=DE, O=datenkollekitv, OU=Planets Debug Certificate";
-        X500Name issuer = new X500Name(issuerString);
-        BigInteger serial = BigInteger.ONE;
-        Date notBefore = new Date();
-        Date notAfter = new Date(System.currentTimeMillis() + (2 * 365 * 24 * 60 * 60 * 1000l));
-        X500Name subject = new X500Name(subjectString);
-        PublicKey publicKey = keyPair.getPublic();
-        JcaX509v3CertificateBuilder v3Bldr = new JcaX509v3CertificateBuilder(issuer,
-                serial,
-                notBefore,
-                notAfter,
-                subject,
-                publicKey);
-        X509CertificateHolder certHldr = v3Bldr
-                .build(new JcaContentSignerBuilder("SHA1WITHECDSA").setProvider("BC").build(keyPair.getPrivate()));
-        X509Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHldr);
-        cert.checkValidity(new Date());
-        cert.verify(keyPair.getPublic());
-        return cert;
     }
 
     public static String getPubKeyFromKeystore() {
