@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Biometric login</string>
+    <string name="loggedin_message"> Your data are shown below.\n You can verify them using a signature validation tool (e.g. <a href="https://8gwifi.org/ecsignverify.jsp">8gwifi.org</a>) \n\n(Long press to copy the keys)</string>
+</resources>

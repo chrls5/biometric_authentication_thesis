@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "349398569867",
+    "project_id": "thesis-biometric-auth",
+    "storage_bucket": "thesis-biometric-auth.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:349398569867:android:b055b4acc0bdf5e9d6158e",
+        "android_client_info": {
+          "package_name": "com.example.thesis_final"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "349398569867-s0ragarkt19u7odcajoi5gof005c18gp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.thesis_final",
+            "certificate_hash": "36466202260422e0251e671f466bcf9d57230502"
+          }
+        },
+        {
+          "client_id": "349398569867-oohh7sr9k22lf5nm45e63lnul1bdon3n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUHL-ZG5Xbtmsk7uezwJhTqnAGTHwjxpU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "349398569867-oohh7sr9k22lf5nm45e63lnul1bdon3n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
