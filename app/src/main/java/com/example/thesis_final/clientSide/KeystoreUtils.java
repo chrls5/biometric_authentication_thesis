@@ -33,6 +33,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyPair;
@@ -92,7 +93,8 @@ public class KeystoreUtils {
         return null;
     }
 
-    public static void generateKeyPairAndStoreToKeystore(String password) {
+    public static boolean generateKeyPairAndStoreToKeystore(String password) {
+        boolean successfull = true;
         KeyStore ks;
         try {
             ks = loadKeystore(null);
@@ -110,9 +112,11 @@ public class KeystoreUtils {
             CurrentState.setPubKeyLatest( Base64.toBase64String(keyPair.getPublic().getEncoded()));
             CurrentState.setPrivKeyLatest(Base64.toBase64String(keyPair.getPrivate().getEncoded()));
 
-        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | NoSuchProviderException | InvalidKeyException | SignatureException | OperatorCreationException e) {
+        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | NoSuchProviderException | InvalidKeyException | SignatureException | OperatorCreationException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
+            successfull = false;
         }
+        return successfull;
     }
 
 

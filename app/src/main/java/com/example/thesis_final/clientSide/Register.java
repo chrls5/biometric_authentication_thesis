@@ -18,7 +18,11 @@ public class Register {
             Toast.makeText(view.getContext(), rsp.getMessage(), Toast.LENGTH_SHORT).show();
             return;
         }
-        generateKeyPairAndStoreToKeystore(password);
+        boolean success = generateKeyPairAndStoreToKeystore(password);
+        if (!success) {
+            Toast.makeText(view.getContext(), "Couldn't generate keys", Toast.LENGTH_SHORT).show();
+            return;
+        }
         String pubKey = getPubKeyFromKeystore();
         if (pubKey == null) {
             Toast.makeText(view.getContext(), "Couldn't retrieve the public key", Toast.LENGTH_SHORT).show();

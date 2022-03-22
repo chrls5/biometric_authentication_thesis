@@ -16,6 +16,7 @@ import com.google.firebase.database.ValueEventListener;
 import org.bouncycastle.util.encoders.Base64;
 
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -106,9 +107,7 @@ public class UsersService {
         try {
             if (pubKeyUser.equals(Base64.toBase64String(generateKeyPairFromPwd(password).getPublic().getEncoded())))
                 return true;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchProviderException e) {
+        } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException | NoSuchProviderException e) {
             e.printStackTrace();
         }
 
