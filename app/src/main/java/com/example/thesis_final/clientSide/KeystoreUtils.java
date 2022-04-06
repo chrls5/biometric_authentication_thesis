@@ -6,11 +6,15 @@ import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTI
 import static com.example.thesis_final.KeyPairGeneration.generateCertificate;
 import static com.example.thesis_final.KeyPairGeneration.generateKeyPairFromPwd;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
@@ -18,6 +22,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.thesis_final.CurrentState;
 import com.example.thesis_final.Response;
+import com.example.thesis_final.serverSide.UsersServiceAPI;
 
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -95,9 +100,9 @@ public class KeystoreUtils {
 
     public static boolean generateKeyPairAndStoreToKeystore(String password) {
         boolean successfull = true;
-        KeyStore ks;
+
         try {
-            ks = loadKeystore(null);
+            KeyStore ks = loadKeystore(null);
             KeyPair keyPair = generateKeyPairFromPwd(password);
             X509Certificate certificate = generateCertificate(keyPair);
             ks.setKeyEntry(alias,
@@ -109,7 +114,7 @@ public class KeystoreUtils {
 
             Log.e(TAG, Base64.toBase64String(keyPair.getPublic().getEncoded()));
             Log.e(TAG, Base64.toBase64String(keyPair.getPrivate().getEncoded()));
-            CurrentState.setPubKeyLatest( Base64.toBase64String(keyPair.getPublic().getEncoded()));
+            CurrentState.setPubKeyLatest(Base64.toBase64String(keyPair.getPublic().getEncoded()));
             CurrentState.setPrivKeyLatest(Base64.toBase64String(keyPair.getPrivate().getEncoded()));
 
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | NoSuchProviderException | InvalidKeyException | SignatureException | OperatorCreationException | InvalidAlgorithmParameterException e) {
@@ -131,7 +136,52 @@ public class KeystoreUtils {
         return null;
     }
 
-    public static void signMessage(String msg, View v, BiometricPrompt.AuthenticationCallback authCallBack) {
+    public static void signMessage(String message, View view, String username) {
+
+
+        BiometricPrompt.AuthenticationCallback authCallBack = new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode,
+                                              @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                Log.e(TAG, "Authentication error");
+
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(
+                    @NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                Log.e(TAG, "Authentication succeeded");
+                try {
+                    BiometricPrompt.CryptoObject cryptoObject = result.getCryptoObject();
+                    Signature cryptoSignature = cryptoObject.getSignature();
+                    cryptoSignature.update(message.getBytes(StandardCharsets.UTF_8));
+                    final byte[] signed = cryptoSignature.sign();
+
+                    //send signed data to server for verification
+                    Response response = UsersServiceAPI.verifyUserUsingBiometrics(username, signed);
+
+                    Toast.makeText(view.getContext(), response.getMessage(), Toast.LENGTH_SHORT).show();
+
+                    if (response.isSuccess())
+                        ((Activity) view.getContext()).startActivity(new Intent((Activity) view.getContext(), LoggedInView.class));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Log.e(TAG, "Authentication failed");
+
+            }
+        };
+
+
+
         try {
             Signature signature = Signature.getInstance("SHA256withECDSA");
             signature.initSign(getPrivateKey());
@@ -140,14 +190,13 @@ public class KeystoreUtils {
                     .setNegativeButtonText("Cancel?")
                     .setTitle("Signing")
                     .build();
-            BiometricPrompt bp = new BiometricPrompt((FragmentActivity) v.getContext(), ContextCompat.getMainExecutor(v.getContext()), authCallBack);
+            BiometricPrompt bp = new BiometricPrompt((FragmentActivity) view.getContext(), ContextCompat.getMainExecutor(view.getContext()), authCallBack);
             bp.authenticate(promptInfo, new BiometricPrompt.CryptoObject(signature));
 
         } catch (NoSuchAlgorithmException | KeyStoreException | IOException | CertificateException | UnrecoverableEntryException | InvalidKeyException e) {
             e.printStackTrace();
         }
     }
-
 
 
     public static Response isSensorAvailable(Context context) {
@@ -161,18 +210,18 @@ public class KeystoreUtils {
                     case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
                         return new Response(false, "No biometric features available on this device.");
                     case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
-                        return new Response( false, "Biometric features are currently unavailable.");
+                        return new Response(false, "Biometric features are currently unavailable.");
                     case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
                         // Prompts the user to create credentials that your app accepts.
-                        return new Response( false, "No fingerprints detected. Enroll one.");
+                        return new Response(false, "No fingerprints detected. Enroll one.");
                 }
             } else {
-                return new Response(false,"Unsupported android version" );
+                return new Response(false, "Unsupported android version");
             }
         } catch (Exception e) {
             System.out.println("Error detecting biometrics availability: " + e.getMessage());
         }
-        return new Response(false,"Error detecting biometrics availability" );
+        return new Response(false, "Error detecting biometrics availability");
     }
 
 

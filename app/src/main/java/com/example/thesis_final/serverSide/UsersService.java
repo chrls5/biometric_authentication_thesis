@@ -116,20 +116,25 @@ public class UsersService {
 
     boolean verifyUsingBiometrics(String username, byte[] signedData) {
 
+        User currentUser = getUserByUsername(username);
+
+        boolean authenticated = verifySignedMessageUsingPukKey(convertStringToPubKey(currentUser.getPubKey()), signedData);
+        if (authenticated) {
+            CurrentState.setPubKeyLatest(currentUser.getPubKey());
+            String signedString = Base64.toBase64String(signedData);
+            signedString = signedString.replaceAll("\r", "").replaceAll("\n", "");
+            CurrentState.setSignedDataLatest(signedString);
+        }
+        return authenticated;
+    }
+
+    private boolean verifySignedMessageUsingPukKey(PublicKey pubKey, byte[] signedData) {
         try {
-            User currentUser = getUserByUsername(username);
             Signature sig = Signature.getInstance("SHA256withECDSA");
-            sig.initVerify(convertStringToPubKey(currentUser.getPubKey()));
+            sig.initVerify(pubKey);
             sig.update("something".getBytes(StandardCharsets.UTF_8));
             boolean authenticated = sig.verify(signedData);
-            if (authenticated) {
-                CurrentState.setPubKeyLatest(currentUser.getPubKey());
-                String signedString = Base64.toBase64String(signedData);
-                signedString = signedString.replaceAll("\r", "").replaceAll("\n", "");
-                CurrentState.setSignedDataLatest(signedString);
-            }
             return authenticated;
-
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
             e.printStackTrace();
         }

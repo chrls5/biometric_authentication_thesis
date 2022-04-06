@@ -67,7 +67,7 @@ public class LoggedInView extends AppCompatActivity implements View.OnLongClickL
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 new_password = input.getText().toString();
-                                if (CurrentState.getUsername() != null&& new_password != "" )
+                                if (CurrentState.getUsername() != null&& new_password!=null && new_password != "" )
                                     Register.alterUserWithBiometrics(CurrentState.getUsername(), CurrentState.getPubKeyLatest(), v);
                                 else
                                     Toast.makeText(v.getContext(), "Something went wrong. Try logging in again!", Toast.LENGTH_SHORT);

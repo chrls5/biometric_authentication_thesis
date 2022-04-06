@@ -39,32 +39,36 @@ import java.util.Date;
 public class KeyPairGeneration {
 
     public static KeyPair generateKeyPairFromPwd(String password) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
+
+        //initialize trusted security
         Security.removeProvider("BC");
         Security.addProvider(new BouncyCastleProvider());
 
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        //hash the password and initialize the SRNG
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");    //min: 128 bits
         byte[] seed = digest.digest(
                 password.getBytes(StandardCharsets.UTF_8));
+        FixedSecureRandom randomnessSource = new FixedSecureRandom(seed);
 
-        FixedSecureRandom random = new FixedSecureRandom(seed);
-
-
+        //initialize EC key pair generator and generate key pair
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC", "BC");
         ECGenParameterSpec ecGenParameterSpec = new ECGenParameterSpec("secp256r1");
-        keyGen.initialize(ecGenParameterSpec, random);
-        return keyGen.generateKeyPair();
+        keyGen.initialize(ecGenParameterSpec, randomnessSource);
+        KeyPair keypair = keyGen.generateKeyPair();
+
+        return keypair;
     }
 
     public static X509Certificate generateCertificate(KeyPair keyPair)
             throws OperatorCreationException, CertificateException, InvalidKeyException, NoSuchAlgorithmException,
             NoSuchProviderException, SignatureException {
-        String issuerString = "C=DE, O=datenkollektiv, OU=Planets Debug Certificate";
+        String issuerString = "CN=bio_auth, OU=CS, O=UCY, L=Nicosia, C=CY";
         // subjects name - the same as we are self signed.
-        String subjectString = "C=DE, O=datenkollekitv, OU=Planets Debug Certificate";
+        String subjectString = "CN=bio_auth, OU=CS, O=UCY, L=Nicosia, C=CY";
         X500Name issuer = new X500Name(issuerString);
         BigInteger serial = BigInteger.ONE;
         Date notBefore = new Date();
-        Date notAfter = new Date(System.currentTimeMillis() + (2 * 365 * 24 * 60 * 60 * 1000l));
+        Date notAfter = new Date(System.currentTimeMillis() + (2 * 365 * 24 * 60 * 60 * 1000l));    //expires after 2 years
         X500Name subject = new X500Name(subjectString);
         PublicKey publicKey = keyPair.getPublic();
         JcaX509v3CertificateBuilder v3Bldr = new JcaX509v3CertificateBuilder(issuer,
@@ -76,8 +80,10 @@ public class KeyPairGeneration {
         X509CertificateHolder certHldr = v3Bldr
                 .build(new JcaContentSignerBuilder("SHA1WITHECDSA").setProvider("BC").build(keyPair.getPrivate()));
         X509Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHldr);
-        cert.checkValidity(new Date());
-        cert.verify(keyPair.getPublic());
+
+        // testing our certificate that:
+        cert.checkValidity(new Date()); //can be used now
+        cert.verify(keyPair.getPublic());   //can verify using pubkey
         return cert;
     }
 }

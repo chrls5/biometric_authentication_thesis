@@ -5,6 +5,7 @@ import static com.example.thesis_final.clientSide.Login.loginUsingPassword;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +13,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.thesis_final.clientSide.Login;
 import com.example.thesis_final.serverSide.UsersService;
 import com.example.thesis_final.serverSide.UsersServiceAPI;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import java.security.Provider;
+import java.security.Security;
+import java.util.Arrays;
 
 /**
  * View for login using password
