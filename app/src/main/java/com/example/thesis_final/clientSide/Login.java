@@ -33,7 +33,7 @@ public class Login {
             return;
         }
 
-        String message = "something";
+        String message = "<random token>";
         KeystoreUtils.signMessage(message, view, username);
     }
 

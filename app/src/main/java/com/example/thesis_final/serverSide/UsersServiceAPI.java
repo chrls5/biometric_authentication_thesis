@@ -13,7 +13,6 @@ public class UsersServiceAPI {
     public static UsersService dbConn;
 
     public static Response addNewUser(String username, String pubKey) {
-
         if (username != null && pubKey != null) {
             if (dbConn.isUserRegistered(username))
                 return new Response(false, "User is already registered!");

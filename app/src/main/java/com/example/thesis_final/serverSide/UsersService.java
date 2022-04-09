@@ -62,7 +62,6 @@ public class UsersService {
                                                 x.child("pubKey").getValue().toString()));
                             }
                     );
-                    Log.e(TAG, String.valueOf(usersRegistered.get(2)));
                 } else
                     Log.e(TAG, "not exists");
             }
@@ -132,7 +131,7 @@ public class UsersService {
         try {
             Signature sig = Signature.getInstance("SHA256withECDSA");
             sig.initVerify(pubKey);
-            sig.update("something".getBytes(StandardCharsets.UTF_8));
+            sig.update("<random token>".getBytes(StandardCharsets.UTF_8));
             boolean authenticated = sig.verify(signedData);
             return authenticated;
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {

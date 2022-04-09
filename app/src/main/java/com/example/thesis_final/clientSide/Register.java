@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.thesis_final.Response;
+import com.example.thesis_final.serverSide.UsersService;
 import com.example.thesis_final.serverSide.UsersServiceAPI;
 
 public class Register {
